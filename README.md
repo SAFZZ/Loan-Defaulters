@@ -1,8 +1,8 @@
 # Loan-Defaulters
 Creating a machine learning model to find loan defaulters.
 
-#imporing packages
-
+# Imporing packages
+```
 from datetime import datetime
 import numpy as np
 import pandas as pd
@@ -12,16 +12,17 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import auc
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
-
-#reading dataset
+```
+# Reading dataset
+```
 dfTest = pd.read_csv('test_indessa.csv')
 dfTrain = pd.read_csv('train_indessa.csv')
 
 dfTrain = dfTrain[['member_id', 'loan_amnt', 'funded_amnt', 'addr_state', 'funded_amnt_inv', 'sub_grade', 'term', 'desc', 'emp_length', 'int_rate', 'annual_inc', 'dti', 'delinq_2yrs', 'inq_last_6mths', 'mths_since_last_delinq', 'mths_since_last_record', 'open_acc', 'pub_rec', 'revol_bal', 'revol_util', 'total_acc','total_rec_int', 'total_rec_late_fee', 'recoveries', 'collection_recovery_fee', 'collections_12_mths_ex_med', 'mths_since_last_major_derog', 'last_week_pay', 'acc_now_delinq', 'tot_coll_amt', 'tot_cur_bal', 'total_rev_hi_lim', 'loan_status']]
 dfTest = dfTest[['member_id', 'loan_amnt', 'funded_amnt', 'addr_state', 'funded_amnt_inv', 'sub_grade', 'term', 'desc','emp_length', 'int_rate', 'annual_inc', 'dti', 'delinq_2yrs', 'inq_last_6mths', 'mths_since_last_delinq', 'mths_since_last_record', 'open_acc', 'pub_rec', 'revol_bal', 'revol_util', 'total_acc', 'total_rec_int', 'total_rec_late_fee', 'recoveries', 'collection_recovery_fee', 'collections_12_mths_ex_med', 'mths_since_last_major_derog', 'last_week_pay', 'acc_now_delinq', 'tot_coll_amt', 'tot_cur_bal', 'total_rev_hi_lim']]
-
-#transforming data
-
+```
+# Transforming data
+```
 def get_last_week_pay(raw) :
     try :
         return int(re.sub("\D", "", raw))
@@ -50,8 +51,8 @@ def clean_text(raw_text):
     
     else :
         return 0 
-
-
+```
+```
 dfTrain['term'] = dfTrain['term'].apply(lambda x : int(re.sub("\D", "", x)))
 dfTrain['last_week_pay'] = dfTrain['last_week_pay'].apply(get_last_week_pay)
 dfTrain['desc'] = dfTrain['desc'].apply(clean_text)
@@ -79,9 +80,9 @@ dfTest['emp_length'] = pd.to_numeric(dfTest['emp_length'], errors='coerce')
 
 dfTrain['sub_grade'] = pd.to_numeric(dfTrain['sub_grade'], errors='coerce')
 dfTest['sub_grade'] = pd.to_numeric(dfTest['sub_grade'], errors='coerce')
-
-#feature engineering
-
+```
+# Feature engineering
+```
 test_member_id = pd.DataFrame(dfTest['member_id'])
 
 train_target = pd.DataFrame(dfTrain['loan_status'])
@@ -177,12 +178,16 @@ clf = xgboost.sklearn.XGBClassifier(
     max_depth=30, 
     gamma=10, 
     n_estimators=500)
-
+ ```
+# Training the data
+```
 clf.fit(X_train, y_train, early_stopping_rounds=20, eval_metric="auc", eval_set=eval_set, verbose=True)
 
 y_pred = clf.predict(X_test)
 accuracy = accuracy_score(np.array(y_test).flatten(), y_pred)
-
+```
+# Testing the data
+```
 submission_file_name = "Loan_Defaulter_submission"
 print("Accuracy: %.10f%%" % (accuracy * 100.0))
 submission_file_name = submission_file_name + ("_Accuracy_%.6f" % (accuracy * 100)) + '_'
@@ -195,9 +200,9 @@ final_pred = pd.DataFrame(clf.predict_proba(np.array(finalTest)))
 dfSub = pd.concat([test_member_id, final_pred.iloc[:, 1:2]], axis=1)
 dfSub.rename(columns={1:'loan_status'}, inplace=True)
 dfSub.to_csv((('%s.csv') % (submission_file_name)), index=False)
-
-##OUTPUT:
+```
+## OUTPUT:
 ![image](https://user-images.githubusercontent.com/75234912/221400119-81102ec8-832b-4495-992b-632924d45e31.png)
 
-##RESULT:
+## RESULT:
 Thus,a model to find loan defaulters has been successfully created.
